@@ -23,7 +23,6 @@ async function sendEmail(
 	console.log("verify", verify);
 
 	if (verify) {
-		readCSV("./csv/test.csv");
 		if (!process.env.template_file) {
 			console.log("template file not found");
 			return;
@@ -75,9 +74,14 @@ async function main() {
 			subject: process.env.email_subject,
 		})
 		.then(() => {
-			console.log(`Email sent to ${user.Email} successfully`);
+			console.log(
+				`Email sent to ${user.Person || user.CompanyName} - ${user.Email} successfully`,
+			);
 		}).catch((err) => {
-			console.log(`Error sending email to ${user.Email}`, err);
+			console.log(
+				`Error sending email to ${user.Person || user.CompanyName} - ${user.Email}`,
+				err,
+			);
 		});
 	}
 }
