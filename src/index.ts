@@ -5,6 +5,7 @@ import type { Address } from "nodemailer/lib/mailer";
 import { parse } from "csv-parse/sync";
 import fs from "node:fs/promises";
 import path from "node:path";
+import chalk from "chalk";
 
 const transporter = nodemailer.createTransport({
 	host: "smtp.qiye.163.com",
@@ -20,11 +21,10 @@ async function sendEmail(
 	params: Pick<Mail.Options, "to" | "subject" | "html" | "text">,
 ) {
 	const verify = await transporter.verify();
-	console.log("verify", verify);
 
 	if (verify) {
 		if (!process.env.template_file) {
-			console.log("template file not found");
+			console.log(`template file not found. ${chalk.red("failed ❌")}`);
 			return;
 		}
 		const template = await readTemplate(process.env.template_file);
@@ -33,9 +33,10 @@ async function sendEmail(
 			to: params.to,
 			replyTo: process.env.user,
 			subject: params.subject,
-			text: params.text,
 			html: template.replace("{{name}}", (params.to as Address).name),
 		});
+	} else {
+		console.log(`email service not verified. ${chalk.red("failed ❌")}`);
 	}
 }
 
@@ -61,7 +62,7 @@ async function readTemplate(relativePath: string): Promise<string> {
 
 async function main() {
 	if (!process.env.cvs_file) {
-		console.log("csv file not found");
+		console.log(`csv file not found. ${chalk.red("failed ❌")}`);
 		return;
 	}
 	const userData = await readCSV(process.env.cvs_file);
@@ -75,11 +76,11 @@ async function main() {
 		})
 		.then(() => {
 			console.log(
-				`Email sent to ${user.Person || user.CompanyName} - ${user.Email} successfully`,
+				`Email sent to ${user.Person || user.CompanyName} - ${user.Email} ${chalk.green("successfully ✔")}`,
 			);
 		}).catch((err) => {
 			console.log(
-				`Error sending email to ${user.Person || user.CompanyName} - ${user.Email}`,
+				`Error sending email to ${user.Person || user.CompanyName} - ${user.Email} ${chalk.red("failed ❌")}`,
 				err,
 			);
 		});
