@@ -6,20 +6,38 @@ import { parse } from "csv-parse/sync";
 import fs from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
+import Ajv from "ajv";
 
-const transporter = nodemailer.createTransport({
-	host: "smtp.qiye.163.com",
-	port: 465,
-	secure: true,
-	auth: {
-		user: process.env.user,
-		pass: process.env.pass,
+const ajv = new Ajv();
+const validate = ajv.compile({
+	type: "object",
+	properties: {
+		host: { type: "string" },
+		port: { type: "string" },
+		secure: { type: "string" },
+		user: { type: "string" },
+		pass: { type: "string" },
 	},
 });
+
+if (!validate(process.env)) {
+	console.log(`environment variables are not valid. ${chalk.red("failed ❌")}`);
+	console.log(validate.errors);
+	process.exit(1);
+}
 
 async function sendEmail(
 	params: Pick<Mail.Options, "to" | "subject" | "html" | "text">,
 ) {
+	const transporter = nodemailer.createTransport({
+		host: process.env.host || "smtp.gmail.com",
+		port: process.env.port || "587",
+		secure: process.env.secure === "true",
+		auth: {
+			user: process.env.user,
+			pass: process.env.pass,
+		},
+	});
 	const verify = await transporter.verify();
 
 	if (verify) {
