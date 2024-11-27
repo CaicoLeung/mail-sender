@@ -1,0 +1,23 @@
+{
+  "name": "mail-sender",
+  "private": true,
+  "description": "Send email to users who are in the csv file",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "rsbuild dev --open",
+    "build": "rsbuild build",
+    "preview": "rsbuild preview",
+    "start": "npx tsx --env-file=.env src/index.ts"
+  },
+  "devDependencies": {
+    "@rsbuild/core": "^1.1.4",
+    "@types/nodemailer": "^6.4.17",
+    "nodemailer": "^6.9.16",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "csv-parse": "^5.6.0",
+    "dotenv": "^16.4.5"
+  }
+}
